@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "HCHollyOC"
-  spec.version      = "0.1"
+  spec.version      = "0.2"
   spec.summary      = "iOS合力云客服sdk."
 
   # This description is used to generate tags and improve search results.
@@ -65,7 +65,7 @@ Pod::Spec.new do |spec|
   #
 
   # spec.platform     = :ios
-  spec.platform     = :ios, "10.0"
+  spec.platform     = :ios, "9.1"
 
   #  When using multiple platforms
   # spec.ios.deployment_target = "5.0"
