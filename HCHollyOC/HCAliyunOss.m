@@ -25,6 +25,7 @@ static HCAliyunOss *_instance = nil;
     dispatch_once(&onceToken, ^{
         _instance = [[HCAliyunOss alloc]init];
         _instance.uploadAudioUrl = @"http://im.7x24cc.com/open_platform/uploadVoiceFile";
+//        _instance.uploadAudioUrl = @"http://ceshi01.7x24cc.com/open_platform/uploadVoiceFile";
     });
     return _instance;
 }

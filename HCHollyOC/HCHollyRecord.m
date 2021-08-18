@@ -18,18 +18,18 @@
 }
 
 @property(nonatomic, strong) AVAudioRecorder *recoder;
-@property(nonatomic, assign) void(^doStart)(void);
-@property(nonatomic, assign) void(^doStop)(void);
-@property(nonatomic, assign) void(^doCancel)(void);
-@property(nonatomic, assign) void(^doUpload)(BOOL iss, NSString *mess);
-@property(nonatomic, assign) void(^doFailed)(NSString *mess);
+@property(nonatomic, copy) void(^doStart)(void);
+@property(nonatomic, copy) void(^doStop)(void);
+@property(nonatomic, copy) void(^doCancel)(void);
+@property(nonatomic, copy) void(^doUpload)(BOOL iss, NSString *mess);
+@property(nonatomic, copy) void(^doFailed)(NSString *mess);
 
 @end
 
 
 @implementation HCHollyRecord
 
-static BOOL showlog = true;
+static BOOL showlog = false;
 static id _instance = nil;
 
 +(HCHollyRecord*)manager{
@@ -67,7 +67,6 @@ static id _instance = nil;
 }
 
 -(void)start{
-    
     NSString *fstr = @"获取录音权限失败";
     AVAudioSession *session = [AVAudioSession sharedInstance];
     __block BOOL hasRecordAuth = true;
@@ -151,18 +150,25 @@ static id _instance = nil;
 //        [recoder recordForDuration:120];
         [_recoder record];
         
-        [self doStart];
+        self.doStart();
         [self dprint:@"record start"];
         
         if (timer != nil) {
             [timer invalidate];
             timer = nil;
         }
-        NSString *cpath = recordPath;
+        __weak NSString *cpath = recordPath;
+        
         __weak HCHollyRecord *wself = self;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        NSLog(@"---->> %@",[NSDate now]);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(54.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            NSLog(@"====>> %@",[NSDate now]);
             [wself recordTimeLimit: cpath];
         });
+        
+//        CADisplayLink    *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(handleDisplayLink:)];
+//        [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+        
     } @catch (NSException *exception) {
         NSLog(@"record auth faild");
         self.doFailed(@"record 初始化 faild");
@@ -170,35 +176,39 @@ static id _instance = nil;
         
     }
 }
+//-(void)handleDisplayLink:(id)sender{
+//    [self recordTimeLimit:@""];
+//}
 -(void)stop{
 //    NSLog(@"-->stop");
     if (_recoder == nil) {
-        [self dprint:@"record not start"];
+        [self dprint:@"stop but record not start"];
         return;
     }
     if (_recoder.isRecording) {
         [_recoder stop];
         [AVAudioSession.sharedInstance setActive:NO error:nil];
         _recoder = nil;
-        [self doStop];
+        self.doStop();
         [self uploadRecord:recordPath];
         [self dprint:@"record stop"];
     }
-    
+    recordPath = @"";
 }
 -(void)cancel{
 //    NSLog(@"-->cancel");
     if (_recoder == nil) {
-        [self dprint:@"record not start"];
+        [self dprint:@"cancel record not start"];
         return;
     }
     if (_recoder.isRecording) {
         [_recoder stop];
         [AVAudioSession.sharedInstance setActive:NO error:nil];
         _recoder = nil;
-        [self doCancel];
+        self.doCancel();
         [self dprint:@"record cancel"];
     }
+    recordPath = @"";
 }
 -(void)uploadRecord:(NSString*)filePath{
 //    NSLog(@"-->uploadRecord");
@@ -224,7 +234,10 @@ static id _instance = nil;
     }
 }
 -(void)recordTimeLimit:(NSString*)onlyUrl{
-    if ([onlyUrl isEqualToString:recordPath]) {
+//    [self alertt:@"时间到了"];
+    
+    if (![onlyUrl isEqualToString:recordPath]) {
+        NSLog(@"time limit 2");
         return;
     }
     if (timer != nil && timer.isValid) {
@@ -249,6 +262,15 @@ static id _instance = nil;
     if (showlog) {
         NSLog(@"%@",log);
     }
+}
+
+-(void)alertt:(NSString *)msg{
+    UIAlertController *ac = [UIAlertController alertControllerWithTitle:@"log" message:msg preferredStyle: UIAlertControllerStyleAlert];
+    UIAlertAction *aa2 = [UIAlertAction actionWithTitle:@"确定" style: UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        
+    }];
+    [ac addAction:aa2];
+    [[[UIApplication sharedApplication] keyWindow].rootViewController presentViewController:ac animated:YES completion:nil];
 }
 
 
