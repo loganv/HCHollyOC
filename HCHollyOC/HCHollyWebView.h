@@ -26,4 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface HCHollyWebView (Priv)
+-(void)reqTakePhoto;
+@end
+
 NS_ASSUME_NONNULL_END

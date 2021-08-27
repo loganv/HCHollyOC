@@ -11,6 +11,7 @@
 #import "HCHollyRecord.h"
 #import "HCHollyLocation.h"
 #import <CoreLocation/CoreLocation.h>
+#import <AVFoundation/AVFoundation.h>
 
 @interface HCHollyWebView()<WKScriptMessageHandler, HCHollyRecordDelegate>
 
@@ -96,6 +97,7 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"recordStop"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"recordCancel"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"getLocation"];
+    [_webview.configuration.userContentController addScriptMessageHandler:self name:@"reqAuthCamera"];
 }
 
 -(void)removeHandler{
@@ -103,6 +105,7 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"recordStop"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"recordCancel"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"getLocation"];
+    [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"reqAuthCamera"];
 }
 
 -(void)loadUrl:(NSString*)sss{
@@ -130,7 +133,7 @@ static NSString *c6Url = @"";
     }];
     
     [HCHollyRecord.manager onFailed:^(NSString * _Nonnull mess) {
-        NSString *jstr = @"hollyRecordFailed()";
+        NSString *jstr = [NSString stringWithFormat: @"hollyRecordFailed('%@')", mess];
         [wself.webview evaluateJavaScript:jstr completionHandler:^(id _Nullable obj, NSError * _Nullable error) {
             
         }];
@@ -163,7 +166,7 @@ static NSString *c6Url = @"";
     }];
 }
 
-
+//  window.webkit.messageHandlers["reqAuthCamera"].postMessage("")
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message{
     if ([message.name isEqualToString:@"recordStart"]) {
         [HCHollyRecord.manager start];
@@ -173,6 +176,9 @@ static NSString *c6Url = @"";
     }
     else if ([message.name isEqualToString:@"recordCancel"]){
         [HCHollyRecord.manager cancel];
+    }
+    else if ([message.name isEqualToString:@"reqAuthCamera"]){
+        [self reqTakePhoto];
     }
     else if ([message.name isEqualToString:@"getLocation"]){
         __weak HCHollyWebView *wself = self;
@@ -224,6 +230,32 @@ static NSString *c6Url = @"";
 }
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation{
     NSLog(@"didFinishNavigation -> %@", webView);
+}
+
+@end
+
+@implementation HCHollyWebView (Priv)
+
+-(void)reqTakePhoto{
+    AVAuthorizationStatus auth = [AVCaptureDevice authorizationStatusForMediaType: AVMediaTypeVideo];
+    NSString *mess = @"";
+    if (auth == AVAuthorizationStatusNotDetermined) {
+        mess = @"还未授权";
+    }
+    else if(auth == AVAuthorizationStatusDenied){
+        mess = @"拒绝";
+    }
+    else if(auth == AVAuthorizationStatusRestricted){
+        
+    }
+    else if(auth == AVAuthorizationStatusAuthorized){
+        mess = @"限制访问";
+    }
+    
+    NSString *jstr = [NSString stringWithFormat:@"hollyAuthCamera('%@')", mess];
+    [self.webview evaluateJavaScript:jstr completionHandler:^(id _Nullable obj, NSError * _Nullable error) {
+        
+    }];
 }
 
 @end

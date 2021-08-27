@@ -12,8 +12,8 @@
 
 @property(nonatomic, strong)CLLocationManager *manager;
 
-@property(nonatomic, assign) void(^locationDone)(CLLocation*);
-@property(nonatomic, assign) void(^locationFail)(NSError*);
+@property(nonatomic, copy) void(^locationDone)(CLLocation*);
+@property(nonatomic, copy) void(^locationFail)(NSError*);
 
 @end
 
