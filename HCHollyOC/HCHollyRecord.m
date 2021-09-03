@@ -90,7 +90,7 @@ static id _instance = nil;
     //设置录音格式
     [dicM setObject:@(kAudioFormatMPEG4AAC) forKey:AVFormatIDKey];
     //设置录音采样率，8000是电话采样率，对于一般录音已经够了
-    [dicM setObject:@(8000) forKey:AVSampleRateKey];
+    [dicM setObject:@(16000) forKey:AVSampleRateKey];
     //设置通道,这里采用单声道
     [dicM setObject:@(1) forKey:AVNumberOfChannelsKey];
     //每个采样点位数,分为8、16、24、32
