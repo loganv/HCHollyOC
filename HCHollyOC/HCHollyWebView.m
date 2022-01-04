@@ -28,11 +28,19 @@ static NSString *c6Url = @"";
 +(void)showlog:(BOOL)iss{
     [HCHollyRecord showlog:iss];
 }
-+(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb{
+/**
+ htype:  1是a5, 0(默认)是a6
+ */
++(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId htype:(int)htype param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb{
 //    NSLog(@"%@", account);
 //    NSString *urlPath = [NSString stringWithFormat: @"http://123.56.20.159:3000/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
+
     NSString *urlPath = [NSString stringWithFormat: @"http://a1.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
 
+    if(htype == 1){
+        urlPath = [NSString stringWithFormat: @"https://a5.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
+    }
+    
     NSString *pars = @"";
     for (NSString *key in param) {
         pars = [NSString stringWithFormat:@"%@%@=%@&",pars,key,param[key]];
