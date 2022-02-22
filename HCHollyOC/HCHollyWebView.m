@@ -49,7 +49,7 @@ static NSString *c6Url = @"";
     NSURL *url = [NSURL URLWithString:urlPath];
     NSURLSessionDataTask *task = [NSURLSession.sharedSession dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
-            NSLog(@"初始化失败，请检查网络，或重新初始化 %@",error);
+            NSLog(@"hollysdk 初始化失败，请检查网络，或重新初始化 %@",error);
             cb(false, @"");
             return;
         }

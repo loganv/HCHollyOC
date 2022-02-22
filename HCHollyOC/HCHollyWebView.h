@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface HCHollyWebView : NSObject
 
-+(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb;
++(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId htype:(int)htype param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb;
 
 +(void)showlog:(BOOL)iss;
 
