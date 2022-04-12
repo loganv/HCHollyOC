@@ -30,6 +30,7 @@ static NSString *c6Url = @"";
 }
 /**
  htype:  1是a5, 0(默认)是a6
+ 2是 account， serviceNo
  */
 +(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId htype:(int)htype param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb{
 //    NSLog(@"%@", account);
@@ -39,6 +40,9 @@ static NSString *c6Url = @"";
 
     if(htype == 1){
         urlPath = [NSString stringWithFormat: @"https://a5.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
+    }
+    if(htype == 2){
+        urlPath = [NSString stringWithFormat: @"https://a6.7x24cc.com/clientPhone?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&account=%@&serviceNo=%@",account, chatId];
     }
     
     NSString *pars = @"";
