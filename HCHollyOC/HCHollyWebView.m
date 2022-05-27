@@ -17,7 +17,7 @@
 
 @property(nonatomic, strong) WKWebView *webview;
 @property(nonatomic, strong) UIProgressView *progress;
-
+@property(nonatomic, copy) void(^messageFromWeb)(id);
 
 @end
 
@@ -108,7 +108,6 @@ static NSString *c6Url = @"";
     [self loadUrl: c6Url];
     
     return _webview;
-    
 }
 
 -(void)addHandler{
@@ -117,6 +116,7 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"recordCancel"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"getLocation"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"reqAuthCamera"];
+    [_webview.configuration.userContentController addScriptMessageHandler:self name:@"webrtcEvent"];
 }
 
 -(void)removeHandler{
@@ -125,6 +125,7 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"recordCancel"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"getLocation"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"reqAuthCamera"];
+    [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"webrtcEvent"];
 }
 
 -(void)loadUrl:(NSString*)sss{
@@ -132,8 +133,6 @@ static NSString *c6Url = @"";
     NSURLRequest *req = [NSURLRequest requestWithURL:url];
     [_webview loadRequest:req];
     [self initRecord];
-    
-    
 }
 
 -(void)initRecord{
@@ -212,6 +211,11 @@ static NSString *c6Url = @"";
             [wself.webview evaluateJavaScript:js completionHandler:nil];
         }];
     }
+    else if ([message.name isEqualToString:@"webrtcEvent"]){
+        if (_messageFromWeb != nil){
+            _messageFromWeb(message.body);
+        }
+    }
 //    NSLog(@"%@",message.name);
     
 //case "getLocation":
@@ -235,6 +239,10 @@ static NSString *c6Url = @"";
 //default:
 //    print("没有匹配到")
 //}
+}
+
+-(void)onMessageFromWeb:(void (^)(id _Nonnull))fn{
+    self.messageFromWeb = fn;
 }
 
 @end

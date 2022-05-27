@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 -(WKWebView*)getC6WebViewWithFrame:(CGRect)frame;
 -(void)removeHandler;
 
+// 内部网页与第三方客户端通讯
+-(void)onMessageFromWeb:(void(^)(id))fn;
 @end
 
 @interface HCHollyWebView (WKNavigationDelegate)<WKNavigationDelegate>
