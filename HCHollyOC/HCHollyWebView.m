@@ -116,6 +116,7 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"recordCancel"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"getLocation"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"reqAuthCamera"];
+    [_webview.configuration.userContentController addScriptMessageHandler:self name:@"getHollyPermission"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"webrtcEvent"];
 }
 
@@ -125,6 +126,7 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"recordCancel"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"getLocation"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"reqAuthCamera"];
+    [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"getHollyPermission"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"webrtcEvent"];
 }
 
@@ -197,6 +199,20 @@ static NSString *c6Url = @"";
     }
     else if ([message.name isEqualToString:@"reqAuthCamera"]){
         [self reqTakePhoto];
+    }
+    else if ([message.name isEqualToString:@"getHollyPermission"]){
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+//        __block BOOL hasAuth = true;
+        __weak HCHollyWebView *wself = self;
+        __weak id authType = message.body;
+        [session requestRecordPermission:^(BOOL granted) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (!granted){
+                }
+                NSString *js = [NSString stringWithFormat:@"hollyPermissionCallback('%@','%d')", authType, granted];
+                [wself.webview evaluateJavaScript:js completionHandler:nil];
+            });
+        }];
     }
     else if ([message.name isEqualToString:@"getLocation"]){
         __weak HCHollyWebView *wself = self;
