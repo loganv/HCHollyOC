@@ -7,6 +7,7 @@
 //
 
 #import "HCAliyunOss.h"
+#import "HCHollyWebView.h"
 
 
 @interface HCAliyunOss(){
@@ -24,8 +25,11 @@ static HCAliyunOss *_instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _instance = [[HCAliyunOss alloc]init];
-        _instance.uploadAudioUrl = @"http://im.7x24cc.com/open_platform/uploadVoiceFile";
+        _instance.uploadAudioUrl = @"https://im.7x24cc.com/open_platform/uploadVoiceFile";
 //        _instance.uploadAudioUrl = @"http://ceshi01.7x24cc.com/open_platform/uploadVoiceFile";
+        if(3 == hosttype){
+            _instance.uploadAudioUrl = @"https://imxg1autni82.7x24cc.com/open_platform/uploadVoiceFile";
+        }
     });
     return _instance;
 }

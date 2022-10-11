@@ -29,14 +29,17 @@ static NSString *c6Url = @"";
     [HCHollyRecord showlog:iss];
 }
 /**
- htype:  1是a5, 0(默认)是a6
- 2是 account， serviceNo, fromCID
+ htype:
+ 0 a6 (默认)
+ 1 a5
+ 2 account, serviceNo, fromCID
+ 3 国外接口
  */
 +(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId htype:(int)htype param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb{
 //    NSLog(@"%@", account);
-//    NSString *urlPath = [NSString stringWithFormat: @"http://123.56.20.159:3000/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
-
-    NSString *urlPath = [NSString stringWithFormat: @"http://a1.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
+//    NSString *urlPath = [NSString stringWithFormat: @"https://123.56.20.159:3000/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
+    hosttype = htype;
+    NSString *urlPath = [NSString stringWithFormat: @"https://a1.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
 
     if(htype == 1){
         urlPath = [NSString stringWithFormat: @"https://a5.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
@@ -50,6 +53,9 @@ static NSString *c6Url = @"";
 //        c6Url = urlPath;
         c6Url = [NSString stringWithFormat:@"%@&%@",urlPath, pars];
         return;
+    }
+    if(3 == htype){
+        urlPath = [NSString stringWithFormat: @"https://imxg1autni82.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
     }
     
     NSString *pars = @"";
@@ -204,7 +210,7 @@ static NSString *c6Url = @"";
         AVAudioSession *session = [AVAudioSession sharedInstance];
 //        __block BOOL hasAuth = true;
         __weak HCHollyWebView *wself = self;
-        __weak id authType = message.body;
+        id authType = message.body;
         [session requestRecordPermission:^(BOOL granted) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (!granted){
