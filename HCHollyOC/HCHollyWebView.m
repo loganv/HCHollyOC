@@ -23,6 +23,7 @@
 
 @implementation HCHollyWebView
 
+static NSString *sdk_ver = @"&sdk_version=0.9.4";
 static NSString *c6Url = @"";
 
 +(void)showlog:(BOOL)iss{
@@ -102,6 +103,8 @@ static NSString *c6Url = @"";
 - (void)dealloc
 {
     NSLog(@"holly webview dealloc");
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayAndRecord error:nil];
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 
 -(WKWebView*)getC6WebViewWithFrame:(CGRect)frame{
@@ -111,7 +114,8 @@ static NSString *c6Url = @"";
     _webview.navigationDelegate = self;
     
     [self addHandler];
-    [self loadUrl: c6Url];
+    
+    [self loadUrl: [c6Url stringByAppendingString: sdk_ver]];
     
     return _webview;
 }
@@ -124,6 +128,8 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"reqAuthCamera"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"getHollyPermission"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"webrtcEvent"];
+    [_webview.configuration.userContentController addScriptMessageHandler:self name:@"webrtcMicEvent"];
+    
 }
 
 -(void)removeHandler{
@@ -134,6 +140,7 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"reqAuthCamera"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"getHollyPermission"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"webrtcEvent"];
+    [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"webrtcMicEvent"];
 }
 
 -(void)loadUrl:(NSString*)sss{
@@ -236,6 +243,18 @@ static NSString *c6Url = @"";
     else if ([message.name isEqualToString:@"webrtcEvent"]){
         if (_messageFromWeb != nil){
             _messageFromWeb(message.body);
+        }
+    }
+    else if ([message.name isEqualToString:@"webrtcMicEvent"]){
+        if ([message.body isKindOfClass:[NSString class]]){
+            if([message.body isEqual:@"0"]){
+                [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayAndRecord error:nil];
+                [[AVAudioSession sharedInstance] setActive:NO error:nil];
+            }
+            else{
+                [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategorySoloAmbient error:nil];
+                [[AVAudioSession sharedInstance] setActive:YES error:nil];
+            }
         }
     }
 //    NSLog(@"%@",message.name);
