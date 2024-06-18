@@ -11,11 +11,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static int hosttype = 0;
+static int hosttype = 0; // 0 正式，1测试， 3 imxg1autni82
 
 @interface HCHollyWebView : NSObject
 
-+(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId htype:(int)htype param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb;
++(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb;
 
 +(void)showlog:(BOOL)iss;
 

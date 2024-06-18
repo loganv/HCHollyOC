@@ -48,6 +48,8 @@
 		9B2C933922BAD6E800AA4E6D /* HCAliyunOss.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HCAliyunOss.m; sourceTree = "<group>"; };
 		9B2C933B22BAD75900AA4E6D /* HCHollyLocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HCHollyLocation.h; sourceTree = "<group>"; };
 		9B2C933C22BAD75900AA4E6D /* HCHollyLocation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HCHollyLocation.m; sourceTree = "<group>"; };
+		9B50132D2B201315009719CC /* HCHollyOC.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = HCHollyOC.podspec; sourceTree = "<group>"; };
+		9B57BE2A2B1F139200FDEF41 /* SDKManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDKManager.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +66,7 @@
 		9B2C92F422BAC4EB00AA4E6D = {
 			isa = PBXGroup;
 			children = (
+				9B50132D2B201315009719CC /* HCHollyOC.podspec */,
 				9B2C92FF22BAC4EB00AA4E6D /* HCHollyOC */,
 				9B2C92FE22BAC4EB00AA4E6D /* Products */,
 			);
@@ -84,6 +87,7 @@
 				9B2C930122BAC4EB00AA4E6D /* HCHollyOC.m */,
 				9B2C933222BAD47500AA4E6D /* HCHollyWebView.h */,
 				9B2C933322BAD47500AA4E6D /* HCHollyWebView.m */,
+				9B57BE2A2B1F139200FDEF41 /* SDKManager.h */,
 				9B2C933522BAD6DB00AA4E6D /* HCHollyRecord.h */,
 				9B2C933622BAD6DB00AA4E6D /* HCHollyRecord.m */,
 				9B2C933822BAD6E800AA4E6D /* HCAliyunOss.h */,
@@ -104,6 +108,7 @@
 				9B2C92F922BAC4EB00AA4E6D /* Sources */,
 				9B2C92FA22BAC4EB00AA4E6D /* Frameworks */,
 				9B2C92FB22BAC4EB00AA4E6D /* CopyFiles */,
+				9B50132E2B201CF6009719CC /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -145,6 +150,26 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		9B50132E2B201CF6009719CC /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\necho \"沙盒路径：$HOME/Library/Application Support/iPhone Simulator\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9B2C92F922BAC4EB00AA4E6D /* Sources */ = {
@@ -282,6 +307,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = PY8EC8QU23;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -312,6 +338,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = PY8EC8QU23;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

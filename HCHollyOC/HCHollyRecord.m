@@ -101,7 +101,7 @@ static id _instance = nil;
     return dicM;
 }
 -(void)startRecord{
-    NSString *fstr = @"获取录音权限失败";
+//    NSString *fstr = @"获取录音权限失败";
     AVAudioSession *session = AVAudioSession.sharedInstance;
     if(![session setCategory: AVAudioSessionCategoryPlayAndRecord error:nil]){
         NSLog(@"111");
@@ -116,15 +116,15 @@ static id _instance = nil;
 //    NSError *aserr = nil;
     @try {
         NSError *err;
-        NSDictionary *set = @{
-//                              AVSampleRateKey: @(8000),
-//                              AVFormatIDKey: @(kAudioFormatLinearPCM),
-//                                  AVEncoderAudioQualityKey: @(AVAudioQualityHigh)
-                              AVSampleRateKey: [NSNumber numberWithFloat: 44100.0],
-                              AVLinearPCMBitDepthKey:[NSNumber numberWithInt:16],
-                            AVFormatIDKey: [NSNumber numberWithInt: kAudioFormatLinearPCM],
-                            
-                              };
+//        NSDictionary *set = @{
+////                              AVSampleRateKey: @(8000),
+////                              AVFormatIDKey: @(kAudioFormatLinearPCM),
+////                                  AVEncoderAudioQualityKey: @(AVAudioQualityHigh)
+//                              AVSampleRateKey: [NSNumber numberWithFloat: 44100.0],
+//                              AVLinearPCMBitDepthKey:[NSNumber numberWithInt:16],
+//                            AVFormatIDKey: [NSNumber numberWithInt: kAudioFormatLinearPCM],
+//                            
+//                              };
         NSDictionary *settings =@{
                                   // 音频格式
                                   AVFormatIDKey:@(kAudioFormatLinearPCM),

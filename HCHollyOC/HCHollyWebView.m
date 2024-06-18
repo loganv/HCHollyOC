@@ -12,6 +12,12 @@
 #import "HCHollyLocation.h"
 #import <CoreLocation/CoreLocation.h>
 #import <AVFoundation/AVFoundation.h>
+//#import "SDKManager.h"
+//#import "HollyA6Sdk/SDKManager.h"
+
+#ifdef COCOAPODS_HollyA6Sdk_IMPORT
+#import "HollyA6Sdk/SDKManager.h"
+#endif
 
 @interface HCHollyWebView()<WKScriptMessageHandler, HCHollyRecordDelegate>
 
@@ -21,13 +27,27 @@
 
 @end
 
+
+
 @implementation HCHollyWebView
 
+static BOOL showlog = false;
 static NSString *sdk_ver = @"&sdk_version=0.9.4";
 static NSString *c6Url = @"";
 
 +(void)showlog:(BOOL)iss{
+    showlog = iss;
     [HCHollyRecord showlog:iss];
+}
+
+void printlog(NSString* a, ...) {
+    if(showlog) {
+        va_list args;
+        va_start(args, a);
+        NSString *formattedString = [[NSString alloc] initWithFormat:a arguments:args];
+        va_end(args);
+        NSLog(@"%@", formattedString);
+    }
 }
 /**
  htype:
@@ -36,34 +56,82 @@ static NSString *c6Url = @"";
  2 account, serviceNo, fromCID
  3 国外接口
  */
-+(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId htype:(int)htype param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb{
-//    NSLog(@"%@", account);
-//    NSString *urlPath = [NSString stringWithFormat: @"https://123.56.20.159:3000/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
-    hosttype = htype;
-    NSString *urlPath = [NSString stringWithFormat: @"https://a1.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
 
-    if(htype == 1){
-        urlPath = [NSString stringWithFormat: @"https://a5.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
-    }
-    if(htype == 2){
-        NSString *pars = @"";
-        for (NSString *key in param) {
-            pars = [NSString stringWithFormat:@"%@%@=%@&",pars,key,param[key]];
++(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb {
+    
+    NSString *urlPath = [NSString stringWithFormat:@"https://a6.7x24cc.com/commonInte?flag=414&md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&accountId=%@", account];
+    NSURL *url = [NSURL URLWithString:urlPath];
+    NSURLSessionDataTask *task = [NSURLSession.sharedSession dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error != nil) {
+            NSLog(@"hollysdk 初始化失败，请检查网络，或重新初始化 %@",error);
+            cb(false, @"");
+            return;
         }
-        urlPath = [NSString stringWithFormat: @"https://a6.7x24cc.com/clientPhone?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&account=%@&serviceNo=%@",account, chatId];
-//        c6Url = urlPath;
-        c6Url = [NSString stringWithFormat:@"%@&%@",urlPath, pars];
-        return;
+        else{
+            /**
+             {
+                 code = 200;
+                 data =     {
+                     node = a6;
+                     nodeUrl = "https://im.7x24cc.com";
+                 };
+                 hostname = "app-node-85df86d65d-r9cmv";
+                 message = "200 ok!";
+                 success = 1;
+             }
+             */
+            NSString *dStr = [[NSString alloc] initWithData:data encoding: NSUTF8StringEncoding];
+            NSDictionary *dc = [NSJSONSerialization JSONObjectWithData:data options: NSJSONReadingAllowFragments error:nil];
+            if (dc != nil) {
+                
+                printlog(@"414: %@",dc);
+                NSInteger succ = [dc[@"success"] integerValue];
+                if (succ == 1) {
+                    NSDictionary *data = dc[@"data"];
+                    if (data != nil) {
+                        NSString *node = data[@"node"];
+                        NSString *nodeUrl = data[@"nodeUrl"];
+                        
+                        if ([node containsString:@"test"]) {
+                            hosttype = 1;
+                        }
+                        
+                        [self _initializtionWithAccount:account chatId:chatId node:node nodeUrl:nodeUrl param:param cb:cb];
+//                        cb(true, @"初始化holly成功");
+                        return;
+                    }
+                }
+            }
+            NSLog(@"初始化holly失败：%@", dStr);
+            cb(false, @"");
+        }
+    }];
+    [task resume];
+}
++(void)_initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId node:(NSString*)node nodeUrl:(NSString*)nodeUrl param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb {
+    
+//    if(htype == 2){
+//        NSString *pars = @"";
+//        for (NSString *key in param) {
+//            pars = [NSString stringWithFormat:@"%@%@=%@&",pars,key,param[key]];
+//        }
+//        urlPath = [NSString stringWithFormat: @"https://a6.7x24cc.com/clientPhone?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&account=%@&serviceNo=%@",account, chatId];
+////        c6Url = urlPath;
+//        c6Url = [NSString stringWithFormat:@"%@&%@",urlPath, pars];
+//        return;
+//    }
+
+    if (![nodeUrl hasSuffix:@"/"]) {
+        nodeUrl = [nodeUrl stringByAppendingString:@"/"];
     }
-    if(3 == htype){
-        urlPath = [NSString stringWithFormat: @"https://imxg1autni82.7x24cc.com/commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",account, chatId];
-    }
+    NSString *urlPath = [NSString stringWithFormat: @"%@commonInte?md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&flag=401&accountId=%@&chatId=%@",nodeUrl,account, chatId];
+
     
     NSString *pars = @"";
     for (NSString *key in param) {
         pars = [NSString stringWithFormat:@"%@%@=%@&",pars,key,param[key]];
     }
-    
+    printlog(@"request api: %@", urlPath);
     NSURL *url = [NSURL URLWithString:urlPath];
     NSURLSessionDataTask *task = [NSURLSession.sharedSession dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -73,11 +141,11 @@ static NSString *c6Url = @"";
         }
         else{
             NSString *dStr = [[NSString alloc] initWithData:data encoding: NSUTF8StringEncoding];
+            printlog(@"dStr: %@",dStr);
 
             NSDictionary *dc = [NSJSONSerialization JSONObjectWithData:data options: NSJSONReadingAllowFragments error:nil];
             if (dc != nil) {
                 NSInteger succ = [dc[@"success"] integerValue];
-                
                 if (succ == 1) {
                     NSString *url = dc[@"interface"];
                     if ([url containsString:@"?"]) {
@@ -86,14 +154,12 @@ static NSString *c6Url = @"";
                     else{
                         c6Url = [NSString stringWithFormat:@"%@?%@",url,pars];
                     }
-                    NSLog(@"%@",c6Url);
+                    printlog(@"c6Url：%@",c6Url);
                     cb(true, @"初始化holly成功");
                     return;
                 }
-//                NSLog(@"%@",dc);
             }
-//            NSLog(@"%@",dStr);
-            cb(false, @"");
+            cb(false, dStr);
         }
     }];
     [task resume];
@@ -102,7 +168,7 @@ static NSString *c6Url = @"";
 
 - (void)dealloc
 {
-    NSLog(@"holly webview dealloc");
+    printlog(@"holly webview dealloc");
     [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayAndRecord error:nil];
     [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
@@ -129,6 +195,7 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"getHollyPermission"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"webrtcEvent"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"webrtcMicEvent"];
+    [_webview.configuration.userContentController addScriptMessageHandler:self name:@"xmTrtcCall"];
     
 }
 
@@ -141,6 +208,7 @@ static NSString *c6Url = @"";
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"getHollyPermission"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"webrtcEvent"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"webrtcMicEvent"];
+    [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"xmTrtcCall"];
 }
 
 -(void)loadUrl:(NSString*)sss{
@@ -257,7 +325,18 @@ static NSString *c6Url = @"";
             }
         }
     }
-//    NSLog(@"%@",message.name);
+#ifdef COCOAPODS_HollyA6Sdk_IMPORT
+    else if ([@"xmTrtcCall" isEqualToString:message.name]){
+        if([message.body isKindOfClass:[NSDictionary class]]){
+            NSDictionary *param = message.body;
+            if(![param[@"sdkAppId"] isEqual:[NSNull null]]){
+                [[SDKManager shareManager] enterVideoRoomWithA6Params:param];
+            }
+        }
+    }
+#endif
+    NSLog(@"%@",message.name);
+    NSLog(@"%@",message.body);
     
 //case "getLocation":
 //    weak var wself = self
@@ -289,15 +368,54 @@ static NSString *c6Url = @"";
 @end
 
 @implementation HCHollyWebView (WKNavigationDelegate)
+//func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, preferences: WKWebpagePreferences, decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void) {
+//    print(navigationAction.request.url)
+//    print(navigationAction.navigationType)
+//    if let url = navigationAction.request.url, navigationAction.navigationType == .linkActivated {
+////            if url.absoluteString.hasSuffix(".pdf") {
+////                // 下载 PDF 文件
+////                downloadFile(url: url)
+////                decisionHandler(.cancel, preferences) // 阻止 WebView 加载链接
+////                return
+////            }
+//        
+//        // pdf zip 文件打开 safari
+//        if url.absoluteString.hasSuffix(".pdf")
+//            || url.absoluteString.hasSuffix(".zip"){
+//            decisionHandler(.cancel, preferences)
+//            UIApplication.shared.open(url)
+//            return
+//        }
+//    }
+//    decisionHandler(.allow, preferences)
+//}
 
+// 前往safari 下载： .zip
+//- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler{
+//    NSLog(@"%@", navigationAction);
+//    
+//    NSURL *url = navigationAction.request.URL;
+//    if(url != nil && navigationAction.navigationType == WKNavigationTypeLinkActivated){
+//        if([url.absoluteString hasSuffix:@".zip"]){
+//            decisionHandler(WKNavigationActionPolicyCancel);
+//            [UIApplication.sharedApplication openURL: url];
+//            return;
+//        }
+//    }
+//    decisionHandler(WKNavigationActionPolicyAllow);
+//}
+//-(void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction preferences:(WKWebpagePreferences *)preferences decisionHandler:(void (^)(WKNavigationActionPolicy, WKWebpagePreferences * _Nonnull))decisionHandler{
+//    
+//    decisionHandler(WKNavigationActionPolicyAllow, )
+//}
 -(void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error{
-    NSLog(@"didFailNavigation -> %@",error);
+    printlog(@"didFailNavigation -> %@",error);
 }
 -(void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error{
-    NSLog(@"didFailProvisionalNavigation -> %@",error);
+    printlog(@"didFailProvisionalNavigation -> %@",error);
 }
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation{
-    NSLog(@"didFinishNavigation -> %@", webView);
+    printlog(@"didFinishNavigation -> %@", webView);
 }
 
 @end

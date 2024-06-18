@@ -26,7 +26,9 @@ static HCAliyunOss *_instance = nil;
     dispatch_once(&onceToken, ^{
         _instance = [[HCAliyunOss alloc]init];
         _instance.uploadAudioUrl = @"https://im.7x24cc.com/open_platform/uploadVoiceFile";
-//        _instance.uploadAudioUrl = @"http://ceshi01.7x24cc.com/open_platform/uploadVoiceFile";
+        if(1 == hosttype){
+            _instance.uploadAudioUrl = @"https://im-ceshi.7x24cc.com/open_platform/uploadVoiceFile";
+        }
         if(3 == hosttype){
             _instance.uploadAudioUrl = @"https://imxg1autni82.7x24cc.com/open_platform/uploadVoiceFile";
         }

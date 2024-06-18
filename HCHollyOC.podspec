@@ -73,7 +73,6 @@ Pod::Spec.new do |spec|
   # spec.watchos.deployment_target = "2.0"
   # spec.tvos.deployment_target = "9.0"
 
-
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
   #  Specify the location from where the source should be retrieved.
@@ -135,5 +134,8 @@ Pod::Spec.new do |spec|
 
   # spec.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
   # spec.dependency "JSONKit", "~> 1.4"
+    
+    # spec.xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'COCOAPODS_HollyA6Sdk_IMPORT=1' }
+    # spec.dependency  'HollyA6Sdk', '~> 0.1.1', :optional => true
 
 end
