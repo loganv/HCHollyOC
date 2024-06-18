@@ -38,6 +38,7 @@ static NSString *c6Url = @"";
 +(void)showlog:(BOOL)iss{
     showlog = iss;
     [HCHollyRecord showlog:iss];
+    [HCHollyLocation showlog:iss];
 }
 
 void printlog(NSString* a, ...) {
@@ -84,7 +85,7 @@ void printlog(NSString* a, ...) {
             NSDictionary *dc = [NSJSONSerialization JSONObjectWithData:data options: NSJSONReadingAllowFragments error:nil];
             if (dc != nil) {
                 
-                printlog(@"414: %@",dc);
+                printlog(@"flag-414: %@",dc);
                 NSInteger succ = [dc[@"success"] integerValue];
                 if (succ == 1) {
                     NSDictionary *data = dc[@"data"];
@@ -281,19 +282,38 @@ void printlog(NSString* a, ...) {
     else if ([message.name isEqualToString:@"reqAuthCamera"]){
         [self reqTakePhoto];
     }
+//    camera, record_audio, location
     else if ([message.name isEqualToString:@"getHollyPermission"]){
-        AVAudioSession *session = [AVAudioSession sharedInstance];
-//        __block BOOL hasAuth = true;
+        
+//        NSString *js = [NSString stringWithFormat:@"hollyPermissionCallback('%@','%d')", message.body, NO];
+//        [self.webview evaluateJavaScript:js completionHandler:nil];
+        
         __weak HCHollyWebView *wself = self;
-        id authType = message.body;
-        [session requestRecordPermission:^(BOOL granted) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (!granted){
-                }
-                NSString *js = [NSString stringWithFormat:@"hollyPermissionCallback('%@','%d')", authType, granted];
-                [wself.webview evaluateJavaScript:js completionHandler:nil];
-            });
-        }];
+        if([message.body isEqualToString: @"camera"]){
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (!granted){
+                    }
+                    NSString *js = [NSString stringWithFormat:@"hollyPermissionCallback('%@','%d')", message.body, granted];
+                    printlog(js);
+                    [wself.webview evaluateJavaScript:js completionHandler:nil];
+                });
+            }];
+        }
+        if([message.body isEqualToString: @"record_audio"]){
+            AVAudioSession *session = [AVAudioSession sharedInstance];
+    //        __block BOOL hasAuth = true;
+            id authType = message.body;
+            [session requestRecordPermission:^(BOOL granted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (!granted){
+                    }
+                    NSString *js = [NSString stringWithFormat:@"hollyPermissionCallback('%@','%d')", authType, granted];
+                    printlog(js);
+                    [wself.webview evaluateJavaScript:js completionHandler:nil];
+                });
+            }];
+        }
     }
     else if ([message.name isEqualToString:@"getLocation"]){
         __weak HCHollyWebView *wself = self;
@@ -335,8 +355,7 @@ void printlog(NSString* a, ...) {
         }
     }
 #endif
-    NSLog(@"%@",message.name);
-    NSLog(@"%@",message.body);
+    printlog(@"web message: %@-%@",message.name, message.body);
     
 //case "getLocation":
 //    weak var wself = self
@@ -425,6 +444,7 @@ void printlog(NSString* a, ...) {
 -(void)reqTakePhoto{
     AVAuthorizationStatus auth = [AVCaptureDevice authorizationStatusForMediaType: AVMediaTypeVideo];
     NSString *mess = @"";
+    BOOL authaa = false;
     if (auth == AVAuthorizationStatusNotDetermined) {
         mess = @"还未授权";
     }
@@ -432,16 +452,44 @@ void printlog(NSString* a, ...) {
         mess = @"拒绝";
     }
     else if(auth == AVAuthorizationStatusRestricted){
-        
-    }
-    else if(auth == AVAuthorizationStatusAuthorized){
         mess = @"限制访问";
     }
+    else if(auth == AVAuthorizationStatusAuthorized){
+        auth = YES;
+    }
     
-    NSString *jstr = [NSString stringWithFormat:@"hollyAuthCamera('%@')", mess];
+    NSString *jstr = [NSString stringWithFormat:@"hollyPermissionCallback('%@','%d','%@')", @"camera", authaa, mess];
+//    NSString *jstr = [NSString stringWithFormat:@"hollyAuthCamera('%@')", mess];
     [self.webview evaluateJavaScript:jstr completionHandler:^(id _Nullable obj, NSError * _Nullable error) {
         
     }];
+}
+- (void)reqCamera{
+    __weak HCHollyWebView *wself = self;
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!granted){
+            }
+            NSString *js = [NSString stringWithFormat:@"hollyPermissionCallback('%@','%d')", @"camera", granted];
+            [wself.webview evaluateJavaScript:js completionHandler:nil];
+        });
+    }];
+}
+- (void)reqAudio{
+    __weak HCHollyWebView *wself = self;
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    id authType = @"record_audio";
+    [session requestRecordPermission:^(BOOL granted) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!granted){
+            }
+            NSString *js = [NSString stringWithFormat:@"hollyPermissionCallback('%@','%d')", authType, granted];
+            [wself.webview evaluateJavaScript:js completionHandler:nil];
+        });
+    }];
+}
+- (void)reqLocation{
+    [[HCHollyLocation share] reqAuth];
 }
 
 @end

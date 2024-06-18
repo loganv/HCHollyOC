@@ -32,6 +32,9 @@ static int hosttype = 0; // 0 正式，1测试， 3 imxg1autni82
 
 @interface HCHollyWebView (Priv)
 -(void)reqTakePhoto;
+-(void)reqCamera;
+-(void)reqAudio;
+-(void)reqLocation;
 @end
 
 NS_ASSUME_NONNULL_END

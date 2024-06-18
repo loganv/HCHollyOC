@@ -104,10 +104,10 @@ static id _instance = nil;
 //    NSString *fstr = @"获取录音权限失败";
     AVAudioSession *session = AVAudioSession.sharedInstance;
     if(![session setCategory: AVAudioSessionCategoryPlayAndRecord error:nil]){
-        NSLog(@"111");
+        [self dprint:@"111"];
     }
     if(![session setActive:YES error:nil]){
-        NSLog(@"222");
+        [self dprint:@"222"];
     }
     
     if (_recoder != nil && _recoder.isRecording) {
@@ -237,14 +237,14 @@ static id _instance = nil;
 //    [self alertt:@"时间到了"];
     
     if (![onlyUrl isEqualToString:recordPath]) {
-        NSLog(@"time limit 2");
+        [self dprint:@"time limit 2"];
         return;
     }
     if (timer != nil && timer.isValid) {
         [timer invalidate];
         timer = nil;
     }
-    NSLog(@"录音::时间限制::");
+    [self dprint:@"录音::时间限制::"];
     [self stop];
 }
 -(NSString*)getFilePath{
@@ -260,7 +260,7 @@ static id _instance = nil;
 
 -(void)dprint:(NSString*) log{
     if (showlog) {
-        NSLog(@"%@",log);
+        NSLog(@"recordlog: %@",log);
     }
 }
 

@@ -15,6 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(HCHollyLocation*)share;
 
++(void)showlog:(BOOL)iss;
+
+-(void)reqAuth;
 -(void)getLocationBack:(void(^)(CLLocation*))locationDone failed:(void(^)(NSError*))locationFail;
 @end
 
