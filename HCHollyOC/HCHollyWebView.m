@@ -314,6 +314,14 @@ void printlog(NSString* a, ...) {
                 });
             }];
         }
+        if([message.body isEqualToString: @"location"]){
+            id authType = message.body;
+            [[HCHollyLocation share] reqAuth];
+            BOOL granted = [[HCHollyLocation share] locIsAuth];
+            NSString *js = [NSString stringWithFormat:@"hollyPermissionCallback('%@','%d')", authType, granted];
+            printlog(js);
+            [wself.webview evaluateJavaScript:js completionHandler:nil];
+        }
     }
     else if ([message.name isEqualToString:@"getLocation"]){
         __weak HCHollyWebView *wself = self;
@@ -490,6 +498,8 @@ void printlog(NSString* a, ...) {
 }
 - (void)reqLocation{
     [[HCHollyLocation share] reqAuth];
+    BOOL granted = [[HCHollyLocation share] locIsAuth];
+//    printlog(@"granted: %d", granted);
 }
 
 @end

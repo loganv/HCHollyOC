@@ -71,4 +71,16 @@ static BOOL showlog = false;
     [_manager requestWhenInUseAuthorization];
 }
 
+-(BOOL)locIsAuth{
+    if (@available(iOS 14.0, *)) {
+        if (showlog) {
+            NSLog(@"authorizationStatus: %d", [_manager authorizationStatus]);
+        }
+        return ([_manager authorizationStatus] == kCLAuthorizationStatusAuthorizedWhenInUse || [_manager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways) ? true : false;
+    } else {
+        // Fallback on earlier versions
+    }
+    return true;
+}
+
 @end

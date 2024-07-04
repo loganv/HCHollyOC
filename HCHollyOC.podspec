@@ -15,8 +15,10 @@ Pod::Spec.new do |spec|
   #  summary should be tweet-length, and the description more in depth.
   #
 
+  # pod trunk push HCHollyOC.podspec --allow-warnings
+  
   spec.name         = "HCHollyOC"
-  spec.version      = "0.9.6"
+  spec.version      = "0.9.7"
   spec.summary      = "iOS合力云客服sdk."
 
   # This description is used to generate tags and improve search results.

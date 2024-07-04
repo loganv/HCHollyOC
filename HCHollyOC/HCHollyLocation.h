@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 +(void)showlog:(BOOL)iss;
 
 -(void)reqAuth;
+-(BOOL)locIsAuth;
 -(void)getLocationBack:(void(^)(CLLocation*))locationDone failed:(void(^)(NSError*))locationFail;
 @end
 
