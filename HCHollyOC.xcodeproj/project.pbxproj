@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		36852F5722BB18280039FEBC /* HCHollyWebView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9B2C933222BAD47500AA4E6D /* HCHollyWebView.h */; };
-		36852F5822BB18280039FEBC /* HCHollyRecord.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9B2C933522BAD6DB00AA4E6D /* HCHollyRecord.h */; };
-		36852F5922BB18280039FEBC /* HCAliyunOss.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9B2C933822BAD6E800AA4E6D /* HCAliyunOss.h */; };
-		36852F5A22BB18280039FEBC /* HCHollyLocation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9B2C933B22BAD75900AA4E6D /* HCHollyLocation.h */; };
+		36852F5722BB18280039FEBC /* HCHollyWebView.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9B2C933222BAD47500AA4E6D /* HCHollyWebView.h */; };
+		36852F5822BB18280039FEBC /* HCHollyRecord.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9B2C933522BAD6DB00AA4E6D /* HCHollyRecord.h */; };
+		36852F5922BB18280039FEBC /* HCAliyunOss.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9B2C933822BAD6E800AA4E6D /* HCAliyunOss.h */; };
+		36852F5A22BB18280039FEBC /* HCHollyLocation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9B2C933B22BAD75900AA4E6D /* HCHollyLocation.h */; };
 		9B2C930222BAC4EB00AA4E6D /* HCHollyOC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B2C930122BAC4EB00AA4E6D /* HCHollyOC.m */; };
-		9B2C930322BAC4EB00AA4E6D /* HCHollyOC.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9B2C930022BAC4EB00AA4E6D /* HCHollyOC.h */; };
+		9B2C930322BAC4EB00AA4E6D /* HCHollyOC.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9B2C930022BAC4EB00AA4E6D /* HCHollyOC.h */; };
 		9B2C933422BAD47500AA4E6D /* HCHollyWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B2C933322BAD47500AA4E6D /* HCHollyWebView.m */; };
 		9B2C933722BAD6DB00AA4E6D /* HCHollyRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B2C933622BAD6DB00AA4E6D /* HCHollyRecord.m */; };
 		9B2C933A22BAD6E800AA4E6D /* HCAliyunOss.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B2C933922BAD6E800AA4E6D /* HCAliyunOss.m */; };
@@ -20,18 +20,19 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		9B2C92FB22BAC4EB00AA4E6D /* CopyFiles */ = {
+		9B2C92FB22BAC4EB00AA4E6D /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				36852F5722BB18280039FEBC /* HCHollyWebView.h in CopyFiles */,
-				36852F5822BB18280039FEBC /* HCHollyRecord.h in CopyFiles */,
-				36852F5922BB18280039FEBC /* HCAliyunOss.h in CopyFiles */,
-				36852F5A22BB18280039FEBC /* HCHollyLocation.h in CopyFiles */,
-				9B2C930322BAC4EB00AA4E6D /* HCHollyOC.h in CopyFiles */,
+				36852F5722BB18280039FEBC /* HCHollyWebView.h in Copy Files */,
+				36852F5822BB18280039FEBC /* HCHollyRecord.h in Copy Files */,
+				36852F5922BB18280039FEBC /* HCAliyunOss.h in Copy Files */,
+				36852F5A22BB18280039FEBC /* HCHollyLocation.h in Copy Files */,
+				9B2C930322BAC4EB00AA4E6D /* HCHollyOC.h in Copy Files */,
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -49,7 +50,6 @@
 		9B2C933B22BAD75900AA4E6D /* HCHollyLocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HCHollyLocation.h; sourceTree = "<group>"; };
 		9B2C933C22BAD75900AA4E6D /* HCHollyLocation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HCHollyLocation.m; sourceTree = "<group>"; };
 		9B50132D2B201315009719CC /* HCHollyOC.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = HCHollyOC.podspec; sourceTree = "<group>"; };
-		9B57BE2A2B1F139200FDEF41 /* SDKManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDKManager.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,7 +87,6 @@
 				9B2C930122BAC4EB00AA4E6D /* HCHollyOC.m */,
 				9B2C933222BAD47500AA4E6D /* HCHollyWebView.h */,
 				9B2C933322BAD47500AA4E6D /* HCHollyWebView.m */,
-				9B57BE2A2B1F139200FDEF41 /* SDKManager.h */,
 				9B2C933522BAD6DB00AA4E6D /* HCHollyRecord.h */,
 				9B2C933622BAD6DB00AA4E6D /* HCHollyRecord.m */,
 				9B2C933822BAD6E800AA4E6D /* HCAliyunOss.h */,
@@ -107,8 +106,9 @@
 			buildPhases = (
 				9B2C92F922BAC4EB00AA4E6D /* Sources */,
 				9B2C92FA22BAC4EB00AA4E6D /* Frameworks */,
-				9B2C92FB22BAC4EB00AA4E6D /* CopyFiles */,
+				9B2C92FB22BAC4EB00AA4E6D /* Copy Files */,
 				9B50132E2B201CF6009719CC /* ShellScript */,
+				9B43E3F52D59A93200B94347 /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -152,6 +152,24 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		9B43E3F52D59A93200B94347 /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\necho \"Build Products Path: ${BUILD_DIR}\"\necho \"Configuration Build Dir: ${CONFIGURATION_BUILD_DIR}\"\n";
+		};
 		9B50132E2B201CF6009719CC /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -167,7 +185,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\necho \"沙盒路径：$HOME/Library/Application Support/iPhone Simulator\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n# echo \"沙盒路径：$HOME/Library/Application Support/iPhone Simulator\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

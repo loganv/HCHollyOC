@@ -9,7 +9,7 @@
 #ifndef SDKManager_h
 #define SDKManager_h
 
-@interface SDKManager
+@interface SDKManager: NSObject
 
 +(SDKManager*)shareManager;
 -(void)enterVideoRoomWithA6Params:(NSDictionary*)param;

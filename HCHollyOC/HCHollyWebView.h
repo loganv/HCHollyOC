@@ -13,9 +13,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 static int hosttype = 0; // 0 正式，1测试， 3 imxg1autni82
 
+
+typedef void(^SaveCompletion)(BOOL success, NSError *error);
+typedef void(^webmsg)(id body);
+
 @interface HCHollyWebView : NSObject
 
+// 国内
 +(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb;
+// 国际
++(void)initializtionWithImxgAccount:(NSString*)account chatId:(NSString*)chatId param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb;
 
 +(void)showlog:(BOOL)iss;
 
@@ -24,6 +31,9 @@ static int hosttype = 0; // 0 正式，1测试， 3 imxg1autni82
 
 // 内部网页与第三方客户端通讯
 -(void)onMessageFromWeb:(void(^)(id))fn;
+
+// 监听：web 的 downloadFile
+-(void)onElseMsg:(webmsg)fn;
 @end
 
 @interface HCHollyWebView (WKNavigationDelegate)<WKNavigationDelegate>
@@ -35,6 +45,7 @@ static int hosttype = 0; // 0 正式，1测试， 3 imxg1autni82
 -(void)reqCamera;
 -(void)reqAudio;
 -(void)reqLocation;
+- (void)saveImageFromURL:(NSURL *)imageURL completion:(SaveCompletion)completion;
 @end
 
 NS_ASSUME_NONNULL_END

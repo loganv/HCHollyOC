@@ -12,21 +12,25 @@
 #import "HCHollyLocation.h"
 #import <CoreLocation/CoreLocation.h>
 #import <AVFoundation/AVFoundation.h>
+#import <Photos/Photos.h>
+//#import <AFNetworking/AFNetworking.h>
+
 //#import "SDKManager.h"
 //#import "HollyA6Sdk/SDKManager.h"
 
-#ifdef COCOAPODS_HollyA6Sdk_IMPORT
-#import "HollyA6Sdk/SDKManager.h"
-#endif
+//#ifdef COCOAPODS_HollyA6Sdk_IMPORT
+//#import "HollyA6Sdk/SDKManager.h"
+//#endif
 
 @interface HCHollyWebView()<WKScriptMessageHandler, HCHollyRecordDelegate>
 
 @property(nonatomic, strong) WKWebView *webview;
 @property(nonatomic, strong) UIProgressView *progress;
 @property(nonatomic, copy) void(^messageFromWeb)(id);
+@property(nonatomic, copy) webmsg webmsg1;
+
 
 @end
-
 
 
 @implementation HCHollyWebView
@@ -58,9 +62,20 @@ void printlog(NSString* a, ...) {
  3 国外接口
  */
 
++(void)initializtionWithImxgAccount:(NSString*)account chatId:(NSString*)chatId param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb{
+    [self initWithAccount:account apiurl:@"https://imxg1autni82.7x24cc.com/commonInte" chatId:chatId param:param cb:cb];
+}
+
 +(void)initializtionWithAccount:(NSString*)account chatId:(NSString*)chatId param:(NSDictionary<NSString *, id>*)param cb:(void(^)(BOOL iss, NSString *mess))cb {
+    [self initWithAccount:account apiurl:@"https://a6.7x24cc.com/commonInte" chatId:chatId param:param cb:cb];
+}
++(void)initWithAccount:(NSString*)account
+                apiurl:(NSString*)apiurl
+                chatId:(NSString*)chatId
+                param:(NSDictionary<NSString *, id>*)param
+                cb:(void(^)(BOOL iss, NSString *mess))cb {
     
-    NSString *urlPath = [NSString stringWithFormat:@"https://a6.7x24cc.com/commonInte?flag=414&md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&accountId=%@", account];
+    NSString *urlPath = [NSString stringWithFormat:@"%@?flag=414&md5=81f0e1f0-32df-11e3-a2e6-1d21429e5f46&accountId=%@", apiurl, account];
     NSURL *url = [NSURL URLWithString:urlPath];
     NSURLSessionDataTask *task = [NSURLSession.sharedSession dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error != nil) {
@@ -191,6 +206,10 @@ void printlog(NSString* a, ...) {
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"recordStart"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"recordStop"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"recordCancel"];
+    
+    [_webview.configuration.userContentController addScriptMessageHandler:self name:@"savePicture"];
+    [_webview.configuration.userContentController addScriptMessageHandler:self name:@"downloadFile"];
+    
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"getLocation"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"reqAuthCamera"];
     [_webview.configuration.userContentController addScriptMessageHandler:self name:@"getHollyPermission"];
@@ -204,6 +223,9 @@ void printlog(NSString* a, ...) {
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"recordStart"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"recordStop"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"recordCancel"];
+    
+    [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"savePicture"];
+    [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"downloadFile"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"getLocation"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"reqAuthCamera"];
     [_webview.configuration.userContentController removeScriptMessageHandlerForName:@"getHollyPermission"];
@@ -278,6 +300,51 @@ void printlog(NSString* a, ...) {
     }
     else if ([message.name isEqualToString:@"recordCancel"]){
         [HCHollyRecord.manager cancel];
+    }
+    else if ([message.name isEqualToString:@"downloadFile"]){
+        // 检查参数类型
+        if ([message.body isKindOfClass:[NSDictionary class]]) {
+            NSDictionary *params = (NSDictionary *)message.body;
+            NSString *fileName = params[@"fileName"]; // "a"
+            NSString *url = params[@"url"]; // "b"
+//            BOOL option = [params[@"option"] boolValue]; // true
+        }
+        if (_webmsg1 != nil){
+            _webmsg1(message.body);
+        }
+    }
+    else if ([message.name isEqualToString:@"savePicture"]){
+        NSString *url = message.body;
+        
+        __weak HCHollyWebView *wself = self;
+        NSURL *imageURL = [NSURL URLWithString:url];
+        if (imageURL) {
+            [self saveImageFromURL:imageURL completion:^(BOOL success, NSError *error) {
+                if (success) {
+                    printlog(@"网络图片成功保存到相册");
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSString *js = [NSString stringWithFormat:@"hollyCallback('%@','%d')", message.body, 1];
+                        printlog(js);
+                        [wself.webview evaluateJavaScript:js completionHandler:nil];
+                    });
+                } else {
+                    printlog(@"保存失败: %@", error.localizedDescription);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSString *js = [NSString stringWithFormat:@"hollyCallback('%@','%d')", error.localizedDescription, 0];
+                        printlog(js);
+                        [wself.webview evaluateJavaScript:js completionHandler:nil];
+                    });
+                }
+            }];
+        }
+        else {
+            printlog(@"检查图片地址 %@", url);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSString *js = [NSString stringWithFormat:@"hollyCallback('%@','%d')", message.body, 0];
+                printlog(js);
+                [wself.webview evaluateJavaScript:js completionHandler:nil];
+            });
+        }
     }
     else if ([message.name isEqualToString:@"reqAuthCamera"]){
         [self reqTakePhoto];
@@ -391,6 +458,9 @@ void printlog(NSString* a, ...) {
 -(void)onMessageFromWeb:(void (^)(id _Nonnull))fn{
     self.messageFromWeb = fn;
 }
+-(void)onElseMsg:(webmsg)fn{
+    self.webmsg1 = fn;
+}
 
 @end
 
@@ -501,5 +571,63 @@ void printlog(NSString* a, ...) {
     BOOL granted = [[HCHollyLocation share] locIsAuth];
 //    printlog(@"granted: %d", granted);
 }
+
+- (void)saveImageFromURL:(NSURL *)imageURL completion:(SaveCompletion)completion {
+    // 检查权限
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+    
+    // 下载并保存图片的逻辑
+    void (^downloadAndSaveBlock)(void) = ^{
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithURL:imageURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            if (error) {
+                if (completion) {
+                    completion(NO, [NSError errorWithDomain:@"com.yourdomain.download" code:1003 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"图片下载失败: %@", error.localizedDescription]}]);
+                }
+                return;
+            }
+            
+            UIImage *image = [UIImage imageWithData:data];
+            if (!image) {
+                if (completion) {
+                    completion(NO, [NSError errorWithDomain:@"com.yourdomain.image" code:1004 userInfo:@{NSLocalizedDescriptionKey: @"无法从数据创建图片"}]);
+                }
+                return;
+            }
+            
+            // 切换到主线程进行UI操作
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+                    PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+                } completionHandler:^(BOOL success, NSError * _Nullable error) {
+                    if (completion) {
+                        completion(success, error);
+                    }
+                }];
+            });
+        }];
+        [task resume];
+    };
+    
+    // 根据不同权限状态处理
+    if (status == PHAuthorizationStatusAuthorized) {
+        downloadAndSaveBlock();
+    } else if (status == PHAuthorizationStatusNotDetermined) {
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            if (status == PHAuthorizationStatusAuthorized) {
+                downloadAndSaveBlock();
+            } else {
+                if (completion) {
+                    completion(NO, [NSError errorWithDomain:@"com.yourdomain.permission" code:1001 userInfo:@{NSLocalizedDescriptionKey: @"用户拒绝了相册访问权限"}]);
+                }
+            }
+        }];
+    } else {
+        if (completion) {
+            completion(NO, [NSError errorWithDomain:@"com.yourdomain.permission" code:1002 userInfo:@{NSLocalizedDescriptionKey: @"没有相册访问权限，请在设置中授权"}]);
+        }
+    }
+}
+
 
 @end
