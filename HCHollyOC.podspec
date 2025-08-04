@@ -18,7 +18,7 @@ Pod::Spec.new do |spec|
   # pod trunk push HCHollyOC.podspec --allow-warnings
   
   spec.name         = "HCHollyOC"
-  spec.version      = "0.9.9"
+  spec.version      = "v0.9.9"
   spec.summary      = "iOS合力云客服sdk."
 
   # This description is used to generate tags and improve search results.
