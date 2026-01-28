@@ -22,12 +22,14 @@
 //#import "HollyA6Sdk/SDKManager.h"
 //#endif
 
-@interface HCHollyWebView()<WKScriptMessageHandler, HCHollyRecordDelegate>
+@interface HCHollyWebView()<WKScriptMessageHandler, HCHollyRecordDelegate, WKNavigationDelegate>
 
 @property(nonatomic, strong) WKWebView *webview;
 @property(nonatomic, strong) UIProgressView *progress;
 @property(nonatomic, copy) void(^messageFromWeb)(id);
 @property(nonatomic, copy) webmsg webmsg1;
+
+@property (nonatomic, strong) NSSet *fileExtensionsSet;
 
 
 @end
@@ -190,6 +192,13 @@ void printlog(NSString* a, ...) {
 }
 
 -(WKWebView*)getC6WebViewWithFrame:(CGRect)frame{
+    
+    // 初始化需要拦截的文件类型（可根据需求扩展）
+    self.fileExtensionsSet = [NSSet setWithObjects:
+                              @"pdf", @"doc", @"docx", @"xls", @"xlsx",
+                              @"ppt", @"pptx", @"zip", @"rar", @"txt",
+                              @"jpg", @"jpeg", @"png", @"mp4", @"csv", nil];
+    
     WKWebViewConfiguration *conf = [[WKWebViewConfiguration alloc] init];
     self.webview = [[WKWebView alloc] initWithFrame:frame configuration:conf];
 //    _webview.UIDelegate = self;
@@ -464,7 +473,47 @@ void printlog(NSString* a, ...) {
 
 @end
 
+
+
 @implementation HCHollyWebView (WKNavigationDelegate)
+#pragma mark - WKNavigationDelegate
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    
+    // 1. 获取请求的URL
+    NSURL *url = navigationAction.request.URL;
+    if (!url) {
+        decisionHandler(WKNavigationActionPolicyAllow);
+        return;
+    }
+    
+    // 2. 解析URL的文件扩展名（转小写避免大小写问题）
+    NSString *pathExtension = [[url pathExtension] lowercaseString];
+    
+    // 3. 判断是否是需要跳转的文件类型
+    if ([self.fileExtensionsSet containsObject:pathExtension]) {
+        // 4. 检查是否可以打开该URL
+        if ([[UIApplication sharedApplication] canOpenURL:url]) {
+            // 跳转到Safari浏览器
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:^(BOOL success) {
+                if (success) {
+                    NSLog(@"成功跳转到Safari打开文件：%@", url);
+                } else {
+                    NSLog(@"跳转Safari失败，将在WKWebView中加载");
+                    decisionHandler(WKNavigationActionPolicyAllow);
+                }
+            }];
+            // 取消WKWebView内部加载
+            decisionHandler(WKNavigationActionPolicyCancel);
+        } else {
+            // URL无法打开，允许内部加载
+            decisionHandler(WKNavigationActionPolicyAllow);
+        }
+    } else {
+        // 不是目标文件类型，允许正常加载
+        decisionHandler(WKNavigationActionPolicyAllow);
+    }
+}
+
 //func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, preferences: WKWebpagePreferences, decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void) {
 //    print(navigationAction.request.url)
 //    print(navigationAction.navigationType)
