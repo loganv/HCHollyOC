@@ -27,6 +27,8 @@ typedef void(^webmsg)(id body);
 +(void)showlog:(BOOL)iss;
 
 -(WKWebView*)getC6WebViewWithFrame:(CGRect)frame;
+/// top、bottom 传 nil 时，分别取设备顶部、底部安全区高度，再从 frame 中减去后调用 getC6WebViewWithFrame:。
+-(WKWebView*)getC6WebViewSafeWithFrame:(CGRect)frame top:(nullable NSNumber *)top bottom:(nullable NSNumber *)bottom;
 -(void)removeHandler;
 
 // 内部网页与第三方客户端通讯

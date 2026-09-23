@@ -31,6 +31,8 @@
 
 @property (nonatomic, strong) NSSet *fileExtensionsSet;
 
+-(NSString *)safeAreaAdaptScript;
+-(UIEdgeInsets)deviceSafeAreaInsets;
 
 @end
 
@@ -191,6 +193,59 @@ void printlog(NSString* a, ...) {
     [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 
+-(UIEdgeInsets)deviceSafeAreaInsets {
+    UIEdgeInsets insets = UIEdgeInsetsZero;
+    if (@available(iOS 11.0, *)) {
+        UIWindow *window = nil;
+        if (@available(iOS 13.0, *)) {
+            for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+                if (![scene isKindOfClass:[UIWindowScene class]]) {
+                    continue;
+                }
+                UIWindowScene *windowScene = (UIWindowScene *)scene;
+                for (UIWindow *item in windowScene.windows) {
+                    if (item.isKeyWindow) {
+                        window = item;
+                        break;
+                    }
+                    if (window == nil) {
+                        window = item;
+                    }
+                }
+                if (window.isKeyWindow) {
+                    break;
+                }
+            }
+        }
+        if (window == nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            window = UIApplication.sharedApplication.keyWindow;
+#pragma clang diagnostic pop
+        }
+        if (window != nil) {
+            insets = window.safeAreaInsets;
+        }
+    }
+    return insets;
+}
+
+-(WKWebView*)getC6WebViewSafeWithFrame:(CGRect)frame top:(NSNumber *)top bottom:(NSNumber *)bottom {
+    UIEdgeInsets insets = UIEdgeInsetsZero;
+    if (top == nil || bottom == nil) {
+        insets = [self deviceSafeAreaInsets];
+    }
+    CGFloat topInset = top != nil ? top.doubleValue : insets.top;
+    CGFloat bottomInset = bottom != nil ? bottom.doubleValue : insets.bottom;
+    CGRect rect = frame;
+    rect.origin.y += topInset;
+    rect.size.height -= (topInset + bottomInset);
+    if (rect.size.height < 0) {
+        rect.size.height = 0;
+    }
+    return [self getC6WebViewWithFrame:rect];
+}
+
 -(WKWebView*)getC6WebViewWithFrame:(CGRect)frame{
     
     // 初始化需要拦截的文件类型（可根据需求扩展）
@@ -200,7 +255,15 @@ void printlog(NSString* a, ...) {
                               @"jpg", @"jpeg", @"png", @"mp4", @"csv", nil];
     
     WKWebViewConfiguration *conf = [[WKWebViewConfiguration alloc] init];
+    WKUserScript *safeAreaScript = [[WKUserScript alloc] initWithSource:[self safeAreaAdaptScript]
+                                                          injectionTime:WKUserScriptInjectionTimeAtDocumentEnd
+                                                       forMainFrameOnly:YES];
+    [conf.userContentController addUserScript:safeAreaScript];
     self.webview = [[WKWebView alloc] initWithFrame:frame configuration:conf];
+    if (@available(iOS 11.0, *)) {
+        // WebView 铺满屏幕，把安全区交给页面的 env(safe-area-inset-*)。
+        self.webview.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
 //    _webview.UIDelegate = self;
     _webview.navigationDelegate = self;
     
@@ -209,6 +272,20 @@ void printlog(NSString* a, ...) {
     [self loadUrl: [c6Url stringByAppendingString: sdk_ver]];
     
     return _webview;
+}
+
+-(NSString *)safeAreaAdaptScript {
+    return @"(function(){"
+    "var d=document;"
+    "var head=d.head||d.documentElement;"
+    "var m=d.querySelector('meta[name=\"viewport\"]');"
+    "if(!m){m=d.createElement('meta');m.setAttribute('name','viewport');head.appendChild(m);}"
+    "var c=m.getAttribute('content')||'width=device-width,initial-scale=1';"
+    "if(c.indexOf('viewport-fit')<0){m.setAttribute('content',c+',viewport-fit=cover');}"
+    "var s=d.getElementById('holly-safe-area');"
+    "if(!s){s=d.createElement('style');s.id='holly-safe-area';head.appendChild(s);}"
+    "s.textContent='html,body{box-sizing:border-box !important;padding-top:constant(safe-area-inset-top) !important;padding-top:env(safe-area-inset-top) !important;padding-right:constant(safe-area-inset-right) !important;padding-right:env(safe-area-inset-right) !important;padding-bottom:constant(safe-area-inset-bottom) !important;padding-bottom:env(safe-area-inset-bottom) !important;padding-left:constant(safe-area-inset-left) !important;padding-left:env(safe-area-inset-left) !important;}';"
+    "})();";
 }
 
 -(void)addHandler{
@@ -401,14 +478,16 @@ void printlog(NSString* a, ...) {
     }
     else if ([message.name isEqualToString:@"getLocation"]){
         __weak HCHollyWebView *wself = self;
-        [HCHollyLocation.share getLocationBack:^(CLLocation * _Nonnull loc) {
+        [[HCHollyLocation share] getLocationBack:^(CLLocation * _Nonnull loc) {
             if (loc == nil) {
                 return;
             }
             NSString *js = [NSString stringWithFormat:@"hollyGetLocation('%f','%f')", loc.coordinate.latitude, loc.coordinate.longitude];
+            printlog(js);
             [wself.webview evaluateJavaScript:js completionHandler:nil];
         } failed:^(NSError * _Nonnull err) {
             NSString *js = [NSString stringWithFormat:@"hollyGetLocationFailed('%@')", err.localizedDescription];
+            printlog(js);
             [wself.webview evaluateJavaScript:js completionHandler:nil];
         }];
     }
@@ -562,6 +641,7 @@ void printlog(NSString* a, ...) {
 }
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation{
     printlog(@"didFinishNavigation -> %@", webView);
+    [webView evaluateJavaScript:[self safeAreaAdaptScript] completionHandler:nil];
 }
 
 @end

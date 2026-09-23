@@ -47,24 +47,51 @@ static BOOL showlog = false;
         NSLog(@"didChangeAuthorizationStatus: %d", status);
     }
     if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
-        
+        if (self.locationDone) {
+            [self.manager startUpdatingLocation];
+        }
     }
-    else{
-        NSLog(@"didChangeAuthorizationStatus: 没有获取定位权限");
+    else if (status != kCLAuthorizationStatusNotDetermined) {
+        if (self.locationFail) {
+            NSDictionary *userInfo = @{NSLocalizedDescriptionKey: @"没有获取定位权限"};
+            NSError *error = [NSError errorWithDomain:@"HCHollyLocation" code:-1 userInfo:userInfo];
+            self.locationFail(error);
+        }
     }
 }
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations{
-    _locationDone(locations.firstObject);
+    if (!_locationDone) {
+        return;
+    }
+    
+    CLLocation *location = locations.firstObject;
+    if (location) {
+        _locationDone(location);
+        _locationDone = nil;
+        _locationFail = nil;
+    }
     [manager stopUpdatingLocation];
 }
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error{
+    if (!_locationFail) {
+        return;
+    }
+    
     _locationFail(error);
+    _locationDone = nil;
+    _locationFail = nil;
+    [manager stopUpdatingLocation];
 }
 
 -(void)getLocationBack:(void(^)(CLLocation*))locationDone failed:(void(^)(NSError*))locationFail{
-    [self reqAuth];
     self.locationDone = locationDone;
     self.locationFail = locationFail;
+    
+    if ([self locIsAuth]) {
+        [self.manager startUpdatingLocation];
+    } else {
+        [self reqAuth];
+    }
 }
 
 -(void)reqAuth{
@@ -72,15 +99,16 @@ static BOOL showlog = false;
 }
 
 -(BOOL)locIsAuth{
+    CLAuthorizationStatus status;
     if (@available(iOS 14.0, *)) {
-        if (showlog) {
-            NSLog(@"authorizationStatus: %d", [_manager authorizationStatus]);
-        }
-        return ([_manager authorizationStatus] == kCLAuthorizationStatusAuthorizedWhenInUse || [_manager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways) ? true : false;
+        status = [_manager authorizationStatus];
     } else {
-        // Fallback on earlier versions
+        status = [CLLocationManager authorizationStatus];
     }
-    return true;
+    if (showlog) {
+        NSLog(@"authorizationStatus: %d", status);
+    }
+    return (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways);
 }
 
 @end
